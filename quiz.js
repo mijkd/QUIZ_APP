@@ -1,16 +1,22 @@
-const mongoose = require("mongoose");
+require("dotenv").config();
+const axios = require("axios");
+const api = process.env.QUIZ_API_TOKEN;
 
-const Quiz = new mongoose.Schema(
-  {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    category: { type: String, required: true },
-    difficulty: { type: String, required: true },
-    date: { type: Date, default: Date.now },
-    score: { type: Number }
-  },
-  { collection: "quiz-data" }
-);
+// Funtion to fetch quiz questions
+async function fetchQuizQuestions(category, difficulty, limit = 10) {
+  let response = "";
+  if (category === "Random") {
+    response = await axios.get(
+      `https://quizapi.io/api/v1/questions?apiKey=${api}&difficulty=${difficulty}&limit=${limit}`
+    );
+  } else {
+    response = await axios.get(
+      `https://quizapi.io/api/v1/questions?apiKey=${api}&category=${category}&limit=${limit}&difficulty=${difficulty}`
+    );
+  }
 
-const model = mongoose.model("QuizData", Quiz);
+  const quizData = await response.data;
+  return quizData;
+}
 
-module.exports = model;
+module.exports = fetchQuizQuestions;
